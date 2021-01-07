@@ -718,20 +718,20 @@ void SplineLib::Join(vector<cSpline2>* splinesIn)
 
 namespace
 {
-    void SubdivideForLength(const cSpline2& s, vector<cSpline2>* splines, float tolerance)
+    void SubdivideForLength(const cSpline2& s, vector<cSpline2>* splines, float tolerance, int depth)
     {
         float error;
         float length = LengthEstimate(s, &error);
 
-        if (error <= tolerance * length)
+        if (depth >= 6 || error <= tolerance * length)
             splines->push_back(s);
         else
         {
             cSpline2 s1, s2;
             Split(s, &s1, &s2);
 
-            SubdivideForLength(s1, splines, tolerance);
-            SubdivideForLength(s2, splines, tolerance);
+            SubdivideForLength(s1, splines, tolerance, depth + 1);
+            SubdivideForLength(s2, splines, tolerance, depth + 1);
         }
     }
 }
@@ -741,7 +741,7 @@ void SplineLib::SubdivideForLength(vector<cSpline2>* splinesIn, float tolerance)
     vector<cSpline2> splines;
 
     for (const cSpline2& s : *splinesIn)
-        ::SubdivideForLength(s, &splines, tolerance);
+        ::SubdivideForLength(s, &splines, tolerance, 0);
 
     splinesIn->swap(splines);
 }
@@ -764,20 +764,20 @@ namespace
         return sqrtf(es2);
     }
 
-    void SubdivideForT(const cSpline2& s, vector<cSpline2>* splines, float tolerance)
+    void SubdivideForT(const cSpline2& s, vector<cSpline2>* splines, float tolerance, int depth)
     {
         float splitT;
         float err = ArcError(s, &splitT);
 
-        if (err <= tolerance)
+        if (depth >= 6 || err <= tolerance)
             splines->push_back(s);
         else
         {
             cSpline2 s1, s2;
             Split(s, splitT, &s1, &s2);
 
-            SubdivideForT(s1, splines, tolerance);
-            SubdivideForT(s2, splines, tolerance);
+            SubdivideForT(s1, splines, tolerance, depth + 1);
+            SubdivideForT(s2, splines, tolerance, depth + 1);
         }
     }
 }
@@ -787,7 +787,7 @@ void SplineLib::SubdivideForT(vector<cSpline2>* splinesIn, float tolerance)
     vector<cSpline2> splines;
 
     for (const cSpline2& s : *splinesIn)
-        ::SubdivideForT(s, &splines, tolerance);
+        ::SubdivideForT(s, &splines, tolerance, 0);
 
     splinesIn->swap(splines);
 }
