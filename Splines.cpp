@@ -951,20 +951,20 @@ int SplineLib::FindNearbySplines(const Vec2f& p, int numSplines, const cSpline2 
 
     for (int i = 0; i < numSplines; i++)
     {
-        float near;
-        float far;
-        FindMinMaxDistance2s(p, splines[i], &near, &far);
+        float _near;
+        float _far;
+        FindMinMaxDistance2s(p, splines[i], &_near, &_far);
 
-        if (near < smallestFar)
+        if (_near < smallestFar)
         {
             // we at least overlap the current set.
-            if (near < smallestNear)
-                smallestNear = near;
+            if (_near < smallestNear)
+                smallestNear = _near;
 
-            if (far < smallestFar)
+            if (_far < smallestFar)
             {
                 // we bring in the 'best' far distance
-                smallestFar = far;
+                smallestFar = _far;
 
                 // compact list to reject any segments that now cannot be closest.
                 int dj = 0;
@@ -981,7 +981,7 @@ int SplineLib::FindNearbySplines(const Vec2f& p, int numSplines, const cSpline2 
                 nearSplines.resize(dj);
             }
 
-            cSubSpline2 ss = { splines[i], i, near };
+            cSubSpline2 ss = { splines[i], i, _near };
             nearSplines.push_back(ss);
 
             if (maxSize < size_i(nearSplines))
@@ -1006,16 +1006,16 @@ int SplineLib::FindNearbySplines(const Vec2f& p, int numSplines, const cSpline2 
 
         for (int i = 0; i < numNearSplines2; i++)
         {
-            float near;
-            float far;
-            FindMinMaxDistance2s(p, nearSplines[i].mSpline, &near, &far);
+            float _near;
+            float _far;
+            FindMinMaxDistance2s(p, nearSplines[i].mSpline, &_near, &_far);
 
-            if (far < smallestFar)
-                smallestFar = far;
-            if (near < smallestNear)
-                smallestNear = near;
+            if (_far < smallestFar)
+                smallestFar = _far;
+            if (_near < smallestNear)
+                smallestNear = _near;
 
-            nearSplines[i].mD2 = near;
+            nearSplines[i].mD2 = _near;
         }
 
         int di = 0;
@@ -1888,20 +1888,20 @@ void SplineLib::Join(vector<cSpline3>* splinesIn)
 
 namespace
 {
-    void SubdivideForLength(const cSpline3& s, vector<cSpline3>* splines, float tolerance)
+    void SubdivideForLength(const cSpline3& s, vector<cSpline3>* splines, float tolerance, int depth)
     {
         float error;
         float length = LengthEstimate(s, &error);
 
-        if (error <= tolerance * length)
+        if (depth >= 6 || error <= tolerance * length)
             splines->push_back(s);
         else
         {
             cSpline3 s1, s2;
             Split(s, &s1, &s2);
 
-            SubdivideForLength(s1, splines, tolerance);
-            SubdivideForLength(s2, splines, tolerance);
+            SubdivideForLength(s1, splines, tolerance, depth + 1);
+            SubdivideForLength(s2, splines, tolerance, depth + 1);
         }
     }
 }
@@ -1911,7 +1911,7 @@ void SplineLib::SubdivideForLength(vector<cSpline3>* splinesIn, float tolerance)
     vector<cSpline3> splines;
 
     for (const cSpline3& s : *splinesIn)
-        ::SubdivideForLength(s, &splines, tolerance);
+        ::SubdivideForLength(s, &splines, tolerance, 0);
 
     splinesIn->swap(splines);
 }
@@ -1935,20 +1935,20 @@ namespace
         return sqrtf(es2);
     }
 
-    void SubdivideForT(const cSpline3& s, vector<cSpline3>* splines, float tolerance)
+    void SubdivideForT(const cSpline3& s, vector<cSpline3>* splines, float tolerance, int depth)
     {
         float splitT;
         float err = ArcError(s, &splitT);
 
-        if (err <= tolerance)
+        if (depth >= 6 || err <= tolerance)
             splines->push_back(s);
         else
         {
             cSpline3 s1, s2;
             Split(s, splitT, &s1, &s2);
 
-            SubdivideForT(s1, splines, tolerance);
-            SubdivideForT(s2, splines, tolerance);
+            SubdivideForT(s1, splines, tolerance, depth + 1);
+            SubdivideForT(s2, splines, tolerance, depth + 1);
         }
     }
 }
@@ -1958,7 +1958,7 @@ void SplineLib::SubdivideForT(vector<cSpline3>* splinesIn, float tolerance)
     vector<cSpline3> splines;
 
     for (const cSpline3& s : *splinesIn)
-        ::SubdivideForT(s, &splines, tolerance);
+        ::SubdivideForT(s, &splines, tolerance, 0);
 
     splinesIn->swap(splines);
 }
@@ -2125,20 +2125,20 @@ int SplineLib::FindNearbySplines(const Vec3f& p, int numSplines, const cSpline3 
 
     for (int i = 0; i < numSplines; i++)
     {
-        float near;
-        float far;
-        FindMinMaxDistance2s(p, splines[i], &near, &far);
+        float _near;
+        float _far;
+        FindMinMaxDistance2s(p, splines[i], &_near, &_far);
 
-        if (near < smallestFar)
+        if (_near < smallestFar)
         {
             // we at least overlap the current set.
-            if (near < smallestNear)
-                smallestNear = near;
+            if (_near < smallestNear)
+                smallestNear = _near;
 
-            if (far < smallestFar)
+            if (_far < smallestFar)
             {
                 // we bring in the 'best' far distance
-                smallestFar = far;
+                smallestFar = _far;
 
                 // compact list to reject any segments that now cannot be closest.
                 int dj = 0;
@@ -2155,7 +2155,7 @@ int SplineLib::FindNearbySplines(const Vec3f& p, int numSplines, const cSpline3 
                 nearSplines.resize(dj);
             }
 
-            cSubSpline3 ss = { splines[i], i, near };
+            cSubSpline3 ss = { splines[i], i, _near };
             nearSplines.push_back(ss);
 
             if (maxSize < size_i(nearSplines))
@@ -2180,16 +2180,16 @@ int SplineLib::FindNearbySplines(const Vec3f& p, int numSplines, const cSpline3 
 
         for (int i = 0; i < numNearSplines2; i++)
         {
-            float near;
-            float far;
-            FindMinMaxDistance2s(p, nearSplines[i].mSpline, &near, &far);
+            float _near;
+            float _far;
+            FindMinMaxDistance2s(p, nearSplines[i].mSpline, &_near, &_far);
 
-            if (far < smallestFar)
-                smallestFar = far;
-            if (near < smallestNear)
-                smallestNear = near;
+            if (_far < smallestFar)
+                smallestFar = _far;
+            if (_near < smallestNear)
+                smallestNear = _near;
 
-            nearSplines[i].mD2 = near;
+            nearSplines[i].mD2 = _near;
         }
 
         int di = 0;
