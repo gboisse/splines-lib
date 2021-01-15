@@ -1965,6 +1965,34 @@ void SplineLib::SubdivideForT(vector<cSpline3>* splinesIn, float tolerance)
 
 namespace
 {
+    void SubdivideForT(const cSpline3& s, vector<float>& splitTs, float splineLength, float prevSplitT, float tolerance, int depth)
+    {
+        float splitT;
+        float err = ArcError(s, &splitT);
+
+        if (depth >= 6 || err <= tolerance)
+            splitTs.push_back(prevSplitT);
+        else
+        {
+            cSpline3 s1, s2;
+            Split(s, splitT, &s1, &s2);
+
+            SubdivideForT(s1, splitTs, splineLength, prevSplitT,                             tolerance, depth + 1);
+            SubdivideForT(s2, splitTs, splineLength, prevSplitT + Length(s1) / splineLength, tolerance, depth + 1);
+        }
+    }
+}
+
+void SplineLib::SubdivideForT(int numSplines, const cSpline3 splines[], vector<float>& splitTs, float tolerance)
+{
+    SL_ASSERT(splitTs.empty());
+
+    for (int i = 0; i < numSplines; ++i)
+        ::SubdivideForT(splines[i], splitTs, Length(splines[i]), static_cast<float>(i), tolerance, 0);
+}
+
+namespace
+{
     inline float ClosestPoint(const Vec3f& p, const Vec3f& p0, const Vec3f& p1)
     {
         Vec3f w = p1 - p0;

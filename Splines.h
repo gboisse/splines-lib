@@ -188,6 +188,8 @@ namespace SplineLib
     void SubdivideForLength(vector<cSpline3>* splines, float relativeError = 0.01f);    ///< Subdivide splines to be close to linear, according to relativeError.
     void SubdivideForT     (vector<cSpline3>* splines, float error = 0.01f);            ///< Subdivide splines to be close to linear in t, i.e., arcLength
 
+    void SubdivideForT(int numSplines, const cSpline3 splines[], vector<float>& splitTs, float error = 0.01f);
+
     // Nearest point
     float FindClosestPoint(const Vec3f& p, const cSpline3& spline); ///< Returns t value of the closest point on s to 'p'
     float FindClosestPoint(const Vec3f& p, int numSplines, const cSpline3 splines[], int* index); ///< Returns index of nearest spline, and 't' value of nearest point on that spline.
